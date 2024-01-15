@@ -4,6 +4,7 @@ go 1.21.5
 
 require (
 	github.com/PuerkitoBio/goquery v1.8.1
+	github.com/cavaliergopher/grab/v3 v3.0.1
 	github.com/manifoldco/promptui v0.9.0
 )
 
