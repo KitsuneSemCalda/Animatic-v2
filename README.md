@@ -16,7 +16,22 @@ Animatic-v2 is a Go-based application designed to search and download anime epis
 >[!WARNING]
 > Do you need go 1.21.5 installed in your system
 
+>[!WARNING]
+> Do you need create manually the /chromeMedia folder
+
 To install this project we need follow this steps:
+
+- Create a directory chromeMedia in root:
+
+```bash
+sudo mkdir /chromeMedia
+```
+
+If chromeMedia is a root owned directory, you need change owner to your user
+
+```bash
+sudo chown $USER /chromeMedia
+```
 
 - Compile the project in your enviroment:
 
