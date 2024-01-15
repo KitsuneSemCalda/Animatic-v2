@@ -11,7 +11,9 @@ import (
 func downloadVideo(destPath string, url string) {
 	client := grab.NewClient()
 
-	request, _ := grab.NewRequest(destPath, url)
+	outputPath := destPath + ".mp4"
+
+	request, _ := grab.NewRequest(outputPath, url)
 	resp := client.Do(request)
 
 	t := time.NewTicker(500 * time.Millisecond)
