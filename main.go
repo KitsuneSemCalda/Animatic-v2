@@ -3,7 +3,10 @@ package main
 import (
 	message "animatic-v2/Message"
 	network "animatic-v2/Network"
+	"animatic-v2/Structures"
 	tui "animatic-v2/Tui"
+	utils "animatic-v2/Utils"
+	"path/filepath"
 )
 
 func main() {
@@ -31,5 +34,14 @@ func main() {
 		return
 	}
 
-	network.SearchAnimeInAnimeFire(animeName)
+	animeURL, animeSelectedName, err := network.SearchAnimeInAnimeFire(animeName)
+	destPath := filepath.Join("/chromeMedia/Series/", utils.SplitAnimeName(animeSelectedName))
+
+	if err != nil {
+		message.ErrorMessage("Failed to Locate anime")
+	}
+
+	epList := network.GetAnimeEpisodes(animeURL)
+
+	network.DownloadAll(destPath, Structures.Anime{Name: animeSelectedName, Url: animeURL}, epList)
 }
