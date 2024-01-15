@@ -40,10 +40,10 @@ mv animatic-v2 ~/.local/bin/animatic
 
 ## Usage
 
->![NOTE]
+>[!NOTE]
 > This script only download episodes to Plex/Jellyfin and playing the anime is your responsability.
 
->![NOTE]
+>[!NOTE]
 > The downloaded episodes is only pt-br subtitles and dub
 
 To use this code is simple:
