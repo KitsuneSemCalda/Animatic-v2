@@ -11,13 +11,24 @@ Animatic-v2 is a Go-based application designed to search and download anime epis
 - Downloads all episodes of the selected anime.
 - Provides error messages for various failure cases such as lack of internet connection, failure to locate the anime, and inability to access episode URLs.
 
+## Fast Installation
+
+>[!CAUTION]
+> Doesn't make pos-install with this script (don't work) or run this script in root mode 
+
+>[!WARNING]
+> Fast install works only linux
+
+To fast install this project do you need run the script: "install.sh" with sudo
+
+```bash
+bash install.sh
+```
+
 ## Installation
 
->[!WARNING]
+>[!CAUTION]
 > Do you need go 1.21.5 installed in your system
-
->[!WARNING]
-> Do you need create manually the /chromeMedia folder
 
 To install this project we need follow this steps:
 
