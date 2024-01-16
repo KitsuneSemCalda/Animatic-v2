@@ -21,7 +21,7 @@ check_directory() {
   dir=$1
   if [ ! -d "$dir" ]; then
     print_red "$dir was not found, creating it"
-    mkdir -p "$dir"
+    sudo mkdir -p "$dir"
   else
     print_green "[OK]: $dir was found"
   fi
