@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 check_dir_owner() {
   dir=$1
   echo $(ls -ld $dir | awk '{print $3}')
