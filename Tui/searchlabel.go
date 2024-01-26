@@ -2,10 +2,10 @@ package tui
 
 import (
 	message "animatic-v2/Message"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
-
-	"time"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type searchLabelModel struct {
@@ -15,7 +15,7 @@ type searchLabelModel struct {
 }
 
 func (m *searchLabelModel) Init() tea.Cmd {
-	return nil
+	return tea.Batch(tea.ClearScreen)
 }
 
 func (m *searchLabelModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -39,7 +39,13 @@ func (m *searchLabelModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *searchLabelModel) View() string {
-	return "Enter the name of the anime to be downloaded: " + m.choice
+	promptStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#00FF00")).
+		Bold(true).
+		Border(lipgloss.RoundedBorder()).
+		Padding(1).
+		Width(50)
+	return promptStyle.Render("Enter the name of the anime to be downloaded: " + m.choice)
 }
 
 func GetAnimeName() string {

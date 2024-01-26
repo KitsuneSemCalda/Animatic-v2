@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type selectAnimeModel struct {
@@ -18,7 +19,7 @@ type selectAnimeModel struct {
 }
 
 func (m selectAnimeModel) Init() tea.Cmd {
-	return tea.Batch()
+	return tea.Batch(tea.ClearScreen)
 }
 
 func (m selectAnimeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -45,13 +46,15 @@ func (m selectAnimeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m selectAnimeModel) View() string {
-	s := "Select the anime:\n"
+	cursorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#00FF00")).Bold(true)
+	listStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#FFFFFF"))
+	s := listStyle.Render("Select the anime:\n")
 	for i, anime := range m.animes {
 		cursor := " "
 		if m.cursor == i {
-			cursor = "▶"
+			cursor = cursorStyle.Render("▶")
 		}
-		s += cursor + " " + anime.Name + "\n"
+		s += cursor + " " + listStyle.Render(anime.Name) + "\n"
 	}
 	return s
 }
