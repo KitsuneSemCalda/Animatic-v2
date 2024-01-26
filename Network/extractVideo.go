@@ -10,14 +10,18 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func extractVideoUrl(animeUrl string) string {
+type VideoExtractor struct {
+	AnimeURL string
+}
 
-	if CheckWebsite(animeUrl) == false {
-		message.ErrorMessage("Can't acess video website")
+func (ve *VideoExtractor) ExtractVideoURL() string {
+
+	if CheckWebsite(ve.AnimeURL) == false {
+		message.ErrorMessage("Can't access video website")
 		return ""
 	}
 
-	response, err := http.Get(animeUrl)
+	response, err := http.Get(ve.AnimeURL)
 
 	if err != nil {
 		message.ErrorMessage(err.Error())
@@ -39,11 +43,11 @@ func extractVideoUrl(animeUrl string) string {
 		}
 	}
 
-	message.ErrorMessage("Cant find video element in html")
+	message.ErrorMessage("Can't find video element in html")
 	return ""
 }
 
-func extractActualVideoLabel(videoSrc string) string {
+func (ve *VideoExtractor) ExtractActualVideoLabel(videoSrc string) string {
 	var videoResponse Structures.VideoResponse
 	response, err := http.Get(videoSrc)
 
@@ -54,7 +58,7 @@ func extractActualVideoLabel(videoSrc string) string {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		message.ErrorMessage("Status Code is diferent of StatusOK")
+		message.ErrorMessage("Status Code is different from StatusOK")
 	}
 
 	body, err := io.ReadAll(response.Body)

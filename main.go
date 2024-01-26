@@ -6,27 +6,19 @@ import (
 	"animatic-v2/Structures"
 	tui "animatic-v2/Tui"
 	utils "animatic-v2/Utils"
+	"os"
 	"path/filepath"
+	"runtime"
 )
 
 func main() {
-
 	// If hasn't internet connection, break the program
-	internetConnection := network.HasNetwork()
-
-	if internetConnection == false {
+	if network.HasNetwork() == false {
 		message.ErrorMessage("Hasn't internet connection")
 		return
 	}
-	/*
-		 TODO: Create a logic to multiple website searching
-		 TODO: Create a logic to unique list from website searching (sqlite3) keep the following infomation:
-		 	- Name of Anime string
-			- Website string
-			- IsDownloadable boolean
-			- NumberOfEpisode integer
-	*/
 
+	var destPath string
 	animeName := tui.GetAnimeName()
 
 	if animeName == "" {
@@ -34,14 +26,21 @@ func main() {
 		return
 	}
 
-	animeURL, animeSelectedName, err := network.SearchAnimeInAnimeFire(animeName)
-	destPath := filepath.Join("/chromeMedia/Series/", utils.SplitAnimeName(animeSelectedName))
-
+	animeSearcher := network.AnimeSearcher{AnimeName: animeName}
+	animeURL, animeSelectedName, err := animeSearcher.SearchAnimeInAnimeFire()
+	if runtime.GOOS != "windows" {
+		destPath = filepath.Join("/chromeMedia/Series/", utils.SplitAnimeName(animeSelectedName))
+	} else {
+		userProfile := os.Getenv("USERPROFILE")
+		destPath = filepath.Join(userProfile, "chromeMedia\\Series\\", utils.SplitAnimeName(animeSelectedName))
+	}
 	if err != nil {
 		message.ErrorMessage("Failed to Locate anime")
 	}
 
-	epList := network.GetAnimeEpisodes(animeURL)
+	anime := network.Anime{URL: animeURL}
+	epList := anime.GetEpisodes()
 
-	network.DownloadAll(destPath, Structures.Anime{Name: animeSelectedName, Url: animeURL}, epList)
+	downloader := network.Downloader{DestPath: destPath, Anime: Structures.Anime{Name: animeSelectedName, Url: animeURL}, EpList: epList}
+	downloader.DownloadAll()
 }

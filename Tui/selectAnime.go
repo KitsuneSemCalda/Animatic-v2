@@ -2,41 +2,79 @@ package tui
 
 import (
 	message "animatic-v2/Message"
-
 	structure "animatic-v2/Structures"
+	"os"
+	"os/signal"
+	"syscall"
 
-	"github.com/manifoldco/promptui"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
-func SelectAnimes(animes []structure.Anime) int {
+type selectAnimeModel struct {
+	cursor int
+	animes []structure.Anime
+	choice int
+	err    error
+}
 
-	/*
-		animesNames := make([]string, 0)
+func (m selectAnimeModel) Init() tea.Cmd {
+	return tea.Batch(tea.ClearScreen)
+}
 
-		for i := range animes {
-			animesNames := append(animesNames, animes[i].Name)
+func (m selectAnimeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.Type {
+		case tea.KeyUp:
+			if m.cursor > 0 {
+				m.cursor--
+			}
+		case tea.KeyDown:
+			if m.cursor < len(m.animes)-1 {
+				m.cursor++
+			}
+		case tea.KeyEnter:
+			m.choice = m.cursor
+			return m, tea.Quit
+
+		case tea.KeyCtrlC:
+			os.Exit(0)
 		}
-	*/
-
-	templates := &promptui.SelectTemplates{
-		Label:    "{{ . }}",
-		Active:   "▶ {{ .Name | cyan }}",
-		Inactive: "  {{ .Name | white }}",
-		Selected: "▶ {{ .Name | cyan | underline }}",
 	}
+	return m, nil
+}
 
-	prompt := promptui.Select{
-		Label:     "Select the anime",
-		Items:     animes,
-		Templates: templates,
+func (m selectAnimeModel) View() string {
+	cursorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#00FF00")).Bold(true)
+	listStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#FFFFFF"))
+	s := listStyle.Render("Select the anime:\n")
+	for i, anime := range m.animes {
+		cursor := " "
+		if m.cursor == i {
+			cursor = cursorStyle.Render("▶")
+		}
+		s += cursor + " " + listStyle.Render(anime.Name) + "\n"
 	}
+	return s
+}
 
-	index, _, err := prompt.Run()
+func SelectAnimes(animes []structure.Anime) int {
+	m := selectAnimeModel{animes: animes}
+	p := tea.NewProgram(m)
 
-	if err != nil {
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		tea.ClearScreen() // Clean up the terminal's state
+		tea.ShowCursor()
+		os.Exit(0)
+	}()
+
+	if _, err := p.Run(); err != nil {
 		message.ErrorMessage(err.Error())
 		return -1
 	}
-
-	return index
+	return m.choice
 }

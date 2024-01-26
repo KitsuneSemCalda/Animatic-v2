@@ -4,6 +4,15 @@
 
 Animatic-v2 is a Go-based application designed to search and download anime episodes from the web. It provides a command-line interface for users to input the name of the anime they wish to download.
 
+>[!CAUTION]
+> Doesn't make pos-install with this script (don't work) or run this script in root mode
+
+>[!WARNING]
+> Fast install works only linux
+
+>[!WARNING]
+> We have a bug in bubbletea with lipgloss, the terminal cursor is hiding and doesn't appears anymore, if you have some solution and want contributing is appreciate
+
 ## Features
 
 - Checks for internet connection at startup.
@@ -12,12 +21,6 @@ Animatic-v2 is a Go-based application designed to search and download anime epis
 - Provides error messages for various failure cases such as lack of internet connection, failure to locate the anime, and inability to access episode URLs.
 
 ## Fast Installation
-
->[!CAUTION]
-> Doesn't make pos-install with this script (don't work) or run this script in root mode 
-
->[!WARNING]
-> Fast install works only linux
 
 To fast install this project do you need run the script: "install.sh" with sudo
 
