@@ -8,22 +8,32 @@ import (
 	"path/filepath"
 )
 
-func DownloadAll(destPath string, anime Structures.Anime, epList []Structures.Episode) {
-	for i := range epList {
-		episode := utils.EpisodeFormatter(i + 1)
-		newdestPath := filepath.Join(destPath, episode)
+type Downloader struct {
+	DestPath string
+	Anime    Structures.Anime
+	EpList   []Structures.Episode
+}
 
-		if CheckWebsite(epList[i].URL) == false {
-			message.ErrorMessage("Cant acess episode url")
+func (d *Downloader) DownloadAll() {
+	videoExtractor := VideoExtractor{}
+
+	for i := range d.EpList {
+		episode := utils.EpisodeFormatter(i + 1)
+		newDestPath := filepath.Join(d.DestPath, episode)
+
+		if !CheckWebsite(d.EpList[i].URL) {
+			message.ErrorMessage("Can't access episode url")
 			return
 		}
 
-		fmt.Println(newdestPath)
+		fmt.Println(newDestPath)
 
-		videoUrl := extractVideoUrl(epList[i].URL)
+		videoExtractor.AnimeURL = d.EpList[i].URL
+		videoUrl := videoExtractor.ExtractVideoURL()
 
-		videoSrc := extractActualVideoLabel(videoUrl)
+		videoSrc := videoExtractor.ExtractActualVideoLabel(videoUrl)
 
-		downloadVideo(newdestPath, videoSrc)
+		videoDownloader := VideoDownloader{DestPath: newDestPath, URL: videoSrc}
+		videoDownloader.Download()
 	}
 }
