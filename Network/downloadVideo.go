@@ -8,12 +8,17 @@ import (
 	"github.com/cavaliergopher/grab/v3"
 )
 
-func downloadVideo(destPath string, url string) {
+type VideoDownloader struct {
+	DestPath string
+	URL      string
+}
+
+func (vd *VideoDownloader) Download() {
 	client := grab.NewClient()
 
-	outputPath := destPath + ".mp4"
+	outputPath := vd.DestPath + ".mp4"
 
-	request, _ := grab.NewRequest(outputPath, url)
+	request, _ := grab.NewRequest(outputPath, vd.URL)
 	resp := client.Do(request)
 
 	t := time.NewTicker(500 * time.Millisecond)
@@ -35,6 +40,6 @@ loop:
 		return
 	}
 
-	message.SucessMessage(fmt.Sprintf("%s was downloaded to %s\n", url, destPath))
+	message.SucessMessage(fmt.Sprintf("%s was downloaded to %s\n", vd.URL, vd.DestPath))
 	return
 }
