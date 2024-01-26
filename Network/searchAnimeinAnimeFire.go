@@ -9,13 +9,18 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
-func SearchAnimeInAnimeFire(animeName string) (string, string, error) {
-	animeName = utils.NameAnimeTreating(animeName)
+type AnimeSearcher struct {
+	AnimeName string
+}
+
+func (as *AnimeSearcher) SearchAnimeInAnimeFire() (string, string, error) {
+	animeName := utils.NameAnimeTreating(as.AnimeName)
 	currentPageUrl := fmt.Sprintf("%s/pesquisar/%s", "https://www.animefire.net", animeName)
 
 	if CheckWebsite(currentPageUrl) == false {
@@ -50,6 +55,11 @@ func SearchAnimeInAnimeFire(animeName string) (string, string, error) {
 			animeName = strings.TrimSpace(s.Text())
 
 			animes = append(animes, anime)
+		})
+
+		// Sort the animes slice to return dub episodes first and leg episodes last
+		sort.Slice(animes, func(i, j int) bool {
+			return strings.Contains(animes[i].Name, "Dublado")
 		})
 
 		if len(animes) > 0 {
