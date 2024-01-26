@@ -9,13 +9,17 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func GetAnimeEpisodes(animeUrl string) []Structures.Episode {
-	if CheckWebsite(animeUrl) == false {
+type Anime struct {
+	URL string
+}
+
+func (a *Anime) GetEpisodes() []Structures.Episode {
+	if CheckWebsite(a.URL) == false {
 		message.ErrorMessage("Can't connect with website")
 		return nil
 	}
 
-	resp, err := http.Get(animeUrl)
+	resp, err := http.Get(a.URL)
 
 	if err != nil {
 		message.ErrorMessage("Failed to get anime details")
