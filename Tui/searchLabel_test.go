@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 func TestSearchLabelModelUpdate(t *testing.T) {
@@ -17,7 +18,13 @@ func TestSearchLabelModelUpdate(t *testing.T) {
 
 func TestSearchLabelModelView(t *testing.T) {
 	m := &searchLabelModel{choice: "Naruto"}
-	expected := "Enter the name of the anime to be downloaded: Naruto"
+	expected := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#00FF00")).
+		Bold(true).
+		Border(lipgloss.RoundedBorder()).
+		Padding(1).
+		Width(50).
+		Render("Enter the name of the anime to be downloaded: Naruto")
 	if m.View() != expected {
 		t.Errorf("Expected %v, got %v", expected, m.View())
 	}
@@ -44,7 +51,7 @@ func TestUpdateWithCharacter(t *testing.T) {
 func TestInit(t *testing.T) {
 	m := &searchLabelModel{}
 	cmd := m.Init()
-	if cmd != nil {
-		t.Errorf("Expected cmd to be nil, got %v", cmd)
+	if cmd == nil {
+		t.Errorf("Expected cmd to not be nil")
 	}
 }
