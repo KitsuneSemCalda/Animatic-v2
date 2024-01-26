@@ -2,7 +2,15 @@ package message
 
 import "fmt"
 
-func SucessMessage(Message string) {
-	fmt.Printf("\033[1;32m\u2705 %s \033[m\n", Message)
-	return
+// SucessMessage prints a success message with style.
+// It takes a string as input and returns nothing.
+func SucessMessage(message string) {
+	if message == "" {
+		return
+	}
+	const greenColor = "\033[1;32m"
+	const resetColor = "\033[0m"
+	const checkMark = "\u2705"
+
+	fmt.Printf("%s%s %s %s\n", greenColor, checkMark, message, resetColor)
 }
