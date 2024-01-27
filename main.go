@@ -7,11 +7,26 @@ import (
 	tui "animatic-v2/Tui"
 	utils "animatic-v2/Utils"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"runtime"
+	"syscall"
 )
 
 func main() {
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGTERM, syscall.SIGKILL)
+
+	go func() {
+		sig := <-sigs
+		switch sig {
+		case syscall.SIGTERM:
+			os.Exit(0)
+		case syscall.SIGKILL:
+			os.Exit(1)
+		}
+	}()
+
 	// If hasn't internet connection, break the program
 	if network.HasNetwork() == false {
 		message.ErrorMessage("Hasn't internet connection")
