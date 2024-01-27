@@ -1,80 +1,96 @@
 package tui
 
 import (
-	message "animatic-v2/Message"
-	structure "animatic-v2/Structures"
-	"os"
-	"os/signal"
-	"syscall"
+	"animatic-v2/Structures"
+	"errors"
 
+	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
-type selectAnimeModel struct {
-	cursor int
-	animes []structure.Anime
-	choice int
-	err    error
+const (
+	AnimeNameColumnTitle = "Anime Name"
+	AnimeURLColumnTitle  = "Anime URL"
+)
+
+type SelectAnimeModel struct {
+	table             table.Model
+	selectedURL       string
+	selectedAnimeName string
 }
 
-func (m *selectAnimeModel) Init() tea.Cmd {
-	return tea.Batch(tea.ClearScreen)
+func (m *SelectAnimeModel) Init() tea.Cmd {
+	return nil
 }
 
-func (m *selectAnimeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *SelectAnimeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyUp:
-			if m.cursor > 0 {
-				m.cursor--
-			}
-		case tea.KeyDown:
-			if m.cursor < len(m.animes)-1 {
-				m.cursor++
-			}
-		case tea.KeyEnter:
-			m.choice = m.cursor
+		switch msg.String() {
+		case "esc":
+			tea.Quit()
+		case "q", "ctrl+c":
 			return m, tea.Quit
-		case tea.KeyCtrlC:
-			os.Exit(0)
+		case "enter":
+			m.selectedAnimeName = m.table.SelectedRow()[0]
+			m.selectedURL = m.table.SelectedRow()[1]
+			return m, tea.Quit
 		}
 	}
-	return m, nil
+	m.table, cmd = m.table.Update(msg)
+	return m, cmd
 }
 
-func (m *selectAnimeModel) View() string {
-	cursorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#00FF00")).Bold(true)
-	listStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#FFFFFF"))
-	s := listStyle.Render("Select the anime:\n")
-	for i, anime := range m.animes {
-		cursor := " "
-		if m.cursor == i {
-			cursor = cursorStyle.Render("▶")
-		}
-		s += cursor + " " + listStyle.Render(anime.Name) + "\n"
+func (m *SelectAnimeModel) View() string {
+	return m.table.View()
+}
+
+func SelectAnimes(animes []Structures.Anime) (string, string, error) {
+	if len(animes) == 0 {
+		return "", "", errors.New("Anime List is empty")
 	}
-	return s
-}
 
-func SelectAnimes(animes []structure.Anime) int {
-	m := &selectAnimeModel{animes: animes} // Use um ponteiro para o modelo
+	columns := []table.Column{
+		{Title: AnimeNameColumnTitle, Width: 50},
+		{Title: AnimeURLColumnTitle, Width: 50},
+	}
+
+	rows := make([]table.Row, 0, len(animes))
+
+	for _, anime := range animes {
+		rows = append(rows, table.Row{anime.Name, anime.Url})
+	}
+
+	t := table.New(
+		table.WithColumns(columns),
+		table.WithRows(rows),
+		table.WithFocused(true),
+		table.WithHeight(len(animes)),
+	)
+
+	s := table.DefaultStyles()
+
+	s.Header = s.Header.
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color("240")).
+		BorderBottom(true).
+		Bold(false)
+
+	s.Selected = s.Selected.
+		Foreground(lipgloss.Color("229")).
+		Background(lipgloss.Color("57")).
+		Bold(false)
+
+	t.SetStyles(s)
+
+	m := &SelectAnimeModel{table: t}
 	p := tea.NewProgram(m)
-
-	c := make(chan os.Signal)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-c
-		tea.ClearScreen()
-		tea.ShowCursor()
-		os.Exit(0)
-	}()
-
 	if err := p.Start(); err != nil {
-		message.ErrorMessage(err.Error())
-		return -1
+		return "", "", err
 	}
 
-	return m.choice
+	return m.selectedAnimeName, m.selectedURL, nil
 }
