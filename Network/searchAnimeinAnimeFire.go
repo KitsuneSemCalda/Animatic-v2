@@ -19,7 +19,7 @@ type AnimeSearcher struct {
 	AnimeName string
 }
 
-func (as *AnimeSearcher) SearchAnimeInAnimeFire() (string, string, error) {
+func (as *AnimeSearcher) SearchAnimeInAnimeFire() (string, string) {
 	animeName := utils.NameAnimeTreating(as.AnimeName)
 	currentPageUrl := fmt.Sprintf("%s/pesquisar/%s", "https://www.animefire.net", animeName)
 
@@ -63,10 +63,11 @@ func (as *AnimeSearcher) SearchAnimeInAnimeFire() (string, string, error) {
 		})
 
 		if len(animes) > 0 {
-			index := tui.SelectAnimes(animes)
-			selectedAnime := animes[index]
-
-			return selectedAnime.Url, selectedAnime.Name, nil
+			selectedAnimeName, selectedUrl, err := tui.SelectAnimes(animes)
+			if err != nil {
+				message.ErrorMessage(err.Error())
+			}
+			return selectedAnimeName, selectedUrl
 		}
 
 		nextPage, exists := doc.Find(".pagination .next a").Attr("href")
