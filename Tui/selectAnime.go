@@ -18,11 +18,11 @@ type selectAnimeModel struct {
 	err    error
 }
 
-func (m selectAnimeModel) Init() tea.Cmd {
+func (m *selectAnimeModel) Init() tea.Cmd {
 	return tea.Batch(tea.ClearScreen)
 }
 
-func (m selectAnimeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *selectAnimeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
@@ -37,7 +37,6 @@ func (m selectAnimeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyEnter:
 			m.choice = m.cursor
 			return m, tea.Quit
-
 		case tea.KeyCtrlC:
 			os.Exit(0)
 		}
@@ -45,7 +44,7 @@ func (m selectAnimeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m selectAnimeModel) View() string {
+func (m *selectAnimeModel) View() string {
 	cursorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#00FF00")).Bold(true)
 	listStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#FFFFFF"))
 	s := listStyle.Render("Select the anime:\n")
@@ -60,21 +59,22 @@ func (m selectAnimeModel) View() string {
 }
 
 func SelectAnimes(animes []structure.Anime) int {
-	m := selectAnimeModel{animes: animes}
+	m := &selectAnimeModel{animes: animes} // Use um ponteiro para o modelo
 	p := tea.NewProgram(m)
 
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-c
-		tea.ClearScreen() // Clean up the terminal's state
+		tea.ClearScreen()
 		tea.ShowCursor()
 		os.Exit(0)
 	}()
 
-	if _, err := p.Run(); err != nil {
+	if err := p.Start(); err != nil {
 		message.ErrorMessage(err.Error())
 		return -1
 	}
+
 	return m.choice
 }

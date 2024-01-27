@@ -61,8 +61,8 @@ func GetAnimeName() string {
 			message.ErrorMessage(err.Error())
 			return ""
 		}
-	case <-time.After(time.Second * 10): // Timeout after 10 seconds
-		p.Send(tea.KeyMsg{Type: tea.KeyCtrlC}) // Send Ctrl+C to the program
+	case <-time.After(time.Second * 10):
+		p.Send(tea.KeyMsg{Type: tea.KeyCtrlC})
 	}
 	if m.done {
 		return m.choice
