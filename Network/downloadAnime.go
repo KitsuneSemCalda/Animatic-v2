@@ -4,7 +4,6 @@ import (
 	message "animatic-v2/Message"
 	"animatic-v2/Structures"
 	utils "animatic-v2/Utils"
-	"fmt"
 	"path/filepath"
 )
 
@@ -25,8 +24,6 @@ func (d *Downloader) DownloadAll() {
 			message.ErrorMessage("Can't access episode url")
 			return
 		}
-
-		fmt.Println(newDestPath)
 
 		videoExtractor.AnimeURL = d.EpList[i].URL
 		videoUrl := videoExtractor.ExtractVideoURL()
