@@ -55,7 +55,7 @@ func SelectAnimes(animes []Structures.Anime) (string, string, error) {
 
 	columns := []table.Column{
 		{Title: AnimeNameColumnTitle, Width: 50},
-		{Title: AnimeURLColumnTitle, Width: 50},
+		{Title: AnimeURLColumnTitle, Width: 180},
 	}
 
 	rows := make([]table.Row, 0, len(animes))
