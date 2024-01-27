@@ -1,11 +1,11 @@
 package network
 
 import (
-	message "animatic-v2/Message"
 	"fmt"
 	"time"
 
 	"github.com/cavaliergopher/grab/v3"
+	"gopkg.in/cheggaaa/pb.v1"
 )
 
 type VideoDownloader struct {
@@ -15,31 +15,26 @@ type VideoDownloader struct {
 
 func (vd *VideoDownloader) Download() {
 	client := grab.NewClient()
+	req, _ := grab.NewRequest(vd.DestPath+".mp4", vd.URL)
+	req.HTTPRequest.Header.Set("Connection", "keep-alive")
 
-	outputPath := vd.DestPath + ".mp4"
+	resp := client.Do(req)
 
-	request, _ := grab.NewRequest(outputPath, vd.URL)
-	resp := client.Do(request)
+	maxSizeInMB := int(resp.Size() / (1024 * 1024))
+	minSizeInMB := 10
 
-	t := time.NewTicker(500 * time.Millisecond)
-	defer t.Stop()
-
-loop:
-	for {
-		select {
-		case <-t.C:
-			fmt.Printf("%.2f%%\r",
-				100*resp.Progress())
-		case <-resp.Done:
-			break loop
-		}
+	if maxSizeInMB < minSizeInMB {
+		maxSizeInMB = minSizeInMB
 	}
 
-	if err := resp.Err(); err != nil {
-		message.ErrorMessage(err.Error())
-		return
+	bar := pb.StartNew(maxSizeInMB)
+
+	fmt.Printf("Episode URL: %s \n", vd.URL)
+	for !resp.IsComplete() {
+		completedInMB := int(resp.Progress() * float64(maxSizeInMB))
+		bar.Set(completedInMB)
+		time.Sleep(time.Millisecond * 500)
 	}
 
-	message.SucessMessage(fmt.Sprintf("%s was downloaded to %s\n", vd.URL, vd.DestPath))
-	return
+	bar.Finish()
 }
