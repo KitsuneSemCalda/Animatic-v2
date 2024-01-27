@@ -27,15 +27,13 @@ func main() {
 	}
 
 	animeSearcher := network.AnimeSearcher{AnimeName: animeName}
-	animeURL, animeSelectedName, err := animeSearcher.SearchAnimeInAnimeFire()
+	animeSelectedName, animeURL := animeSearcher.SearchAnimeInAnimeFire()
+
 	if runtime.GOOS != "windows" {
 		destPath = filepath.Join("/chromeMedia/Series/", utils.SplitAnimeName(animeSelectedName))
 	} else {
 		userProfile := os.Getenv("USERPROFILE")
 		destPath = filepath.Join(userProfile, "chromeMedia\\Series\\", utils.SplitAnimeName(animeSelectedName))
-	}
-	if err != nil {
-		message.ErrorMessage("Failed to Locate anime")
 	}
 
 	anime := network.Anime{URL: animeURL}
